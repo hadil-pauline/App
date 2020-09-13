@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "919937252195",
+    "firebase_url": "https://carte1-d5b3c.firebaseio.com",
+    "project_id": "carte1-d5b3c",
+    "storage_bucket": "carte1-d5b3c.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:919937252195:android:91f7efbe20db087b99f156",
+        "android_client_info": {
+          "package_name": "com.example.carto"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "919937252195-app9uouquqv91ocetqo7bst8srp7gklq.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.carto",
+            "certificate_hash": "303a8d40f9558c5d004db10f1c2403ef78b43473"
+          }
+        },
+        {
+          "client_id": "919937252195-joktj0jf6ctarvokijkg8tqni8kouil8.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBqZZRdPWejHUMVGiSvFmQSfvkD8H9_nQg"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "919937252195-joktj0jf6ctarvokijkg8tqni8kouil8.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
