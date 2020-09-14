@@ -38,6 +38,8 @@ import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.libraries.places.api.Places;
 import com.google.android.libraries.places.api.model.Place;
@@ -50,6 +52,9 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -86,24 +91,30 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
             //mMap.setMapType(GoogleMap.MAP_TYPE_HYBRID);
            // mMap.addMarker(new MarkerOptions().position(new LatLng(36.068901, 4.747727)).title("Patient 1"));
         }
-        googleMap.setOnMarkerClickListener((GoogleMap.OnMarkerClickListener) this);
-        mBd.addListenerForSingleValueEvent(new ValueEventListener() {
+        googleMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
             @Override
-            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-              for(DataSnapshot s: dataSnapshot.getChildren()){
-                  PatientLocation patientLocation= s.getValue(PatientLocation.class);
-                  LatLng location = new LatLng(patientLocation.getLatitude(),patientLocation.getLongitude());
-                  mMap.addMarker(new MarkerOptions().position(location).title(patientLocation.états)
-                          .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_BLUE)));
-
-              }
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError databaseError) {
-
+            public boolean onMarkerClick(Marker marker) {
+                return false;
             }
         });
+
+//        mBd.addListenerForSingleValueEvent(new ValueEventListener() {
+//            @Override
+//            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+//                for(DataSnapshot s: dataSnapshot.getChildren()){
+//                    PatientLocation patientLocation= s.getValue(PatientLocation.class);
+//                    LatLng location = new LatLng(patientLocation.getLatitude(),patientLocation.getLongitude());
+//                    mMap.addMarker(new MarkerOptions().position(location).title(patientLocation.états)
+//                            .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_BLUE)));
+//
+//                }
+//            }
+//
+//            @Override
+//            public void onCancelled(@NonNull DatabaseError databaseError) {
+//
+//            }
+//        });
 
     }
     @Override
@@ -129,9 +140,13 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
     private FusedLocationProviderClient mFusedLocationProviderClient;
     private DatabaseReference mBd;
     private ChildEventListener mCh;
+
    // Marker marker;
     //private PlaceAutocompleteAdapter mPlaceAutocompleteAdapter;
    // private GoogleApiClient mGoogleApiClient;
+
+    private DocumentReference docRef = FirebaseFirestore.getInstance().collection("Patients")
+            .document("fh0P3B1AThLXF7dDzAZy");
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -139,7 +154,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         setContentView(R.layout.activity_map);
         mSearchText = (AutoCompleteTextView) findViewById(R.id.input_search);
         mGps = (ImageView) findViewById(R.id.ic_gps);
-        mBd= FirebaseDatabase.getInstance().getReference().child("Patients");
+       // mBd= FirebaseDatabase.getInstance().getReference().child("Patients");
        // mBd.push().setValue(marker);
         ChildEventListener mCh;
         getLocationPermission();
