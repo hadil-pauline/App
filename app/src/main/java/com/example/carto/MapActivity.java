@@ -116,6 +116,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
 //            }
 //        });
 
+        //  Used For Firestore
         docRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
             @Override
             public void onComplete(@NonNull Task<DocumentSnapshot> task) {
