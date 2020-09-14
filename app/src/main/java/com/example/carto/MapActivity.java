@@ -116,6 +116,26 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
 //            }
 //        });
 
+        docRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                if (task.isSuccessful()) {
+                    DocumentSnapshot document = task.getResult();
+                    if (document.exists()) {
+                       double latitude = document.getDouble("latitude").doubleValue();
+                       double longitude = document.getDouble("longitude").doubleValue();
+                        LatLng location = new LatLng(latitude,longitude);
+                        mMap.addMarker(new MarkerOptions().position(location).title("Anything")
+                                .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_BLUE)));
+                    } else {
+                       Log.d(TAG,"No such Document");
+                    }
+                } else {
+                    Log.d(TAG, task.getException().toString());
+                }
+            }
+        });
+
     }
     @Override
     public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
@@ -146,7 +166,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
    // private GoogleApiClient mGoogleApiClient;
 
     private DocumentReference docRef = FirebaseFirestore.getInstance().collection("Patients")
-            .document("fh0P3B1AThLXF7dDzAZy");
+            .document("fhOP3B1AThLXF7dDzAZy");
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
