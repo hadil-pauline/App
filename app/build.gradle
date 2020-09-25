@@ -37,13 +37,27 @@ dependencies {
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.3.0'
 
 
-    implementation "com.google.firebase:firebase-auth:17.0.0"
+    //Library for Multidex
+    implementation 'androidx.multidex:multidex:2.0.1'
+
+    // firebase Authentication
+    implementation 'com.google.firebase:firebase-auth:19.4.0'
+
+
+
+
+
+
+    // Google play services for places
     implementation 'com.google.android.gms:play-services-places:17.0.0'
+    // Google libraries for places
     implementation 'com.google.android.libraries.places:places:2.3.0'
+    // Google play services for maps
     implementation 'com.google.android.gms:play-services-maps:17.0.0'
+    // Google play services for location information
     implementation 'com.google.android.gms:play-services-location:17.0.0'
     implementation 'com.google.firebase:firebase-analytics:17.5.0'
-    implementation 'androidx.multidex:multidex:2.0.1'           //Library for Multidex
+
 
 }
 apply plugin: 'com.google.gms.google-services'

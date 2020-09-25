@@ -11,29 +11,35 @@ public class PatientLocation {
         this.longitude = longitude;
     }
 
-    public String getÉtats() {
-        return états;
-    }
+    //Setters =====================
 
     public void setÉtats(String états) {
         this.états = états;
-    }
-
-    public double getLatitude() {
-        return latitude;
     }
 
     public void setLatitude(double latitude) {
         this.latitude = latitude;
     }
 
+    public void setLongitude(double longitude) {
+        this.longitude = longitude;
+    }
+
+
+    //Getters =====================
+
+    public String getÉtats() {
+        return états;
+    }
+
+    public double getLatitude() {
+        return latitude;
+    }
+
     public double getLongitude() {
         return longitude;
     }
 
-    public void setLongitude(double longitude) {
-        this.longitude = longitude;
-    }
 
     public PatientLocation() {
     }

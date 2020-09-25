@@ -55,6 +55,8 @@ import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
+import com.google.firebase.firestore.QuerySnapshot;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -66,8 +68,59 @@ import codingwithmitch.com.googlemapsgoogleplaces.R;
 public class MapActivity extends AppCompatActivity implements OnMapReadyCallback,
         GoogleApiClient.OnConnectionFailedListener{
 
-    //Implement methods
+    //Static vars
+    private static final String TAG = "MapActivity";
+    private static final String FINE_LOCATION = Manifest.permission.ACCESS_FINE_LOCATION;
+    private static final String COURSE_LOCATION = Manifest.permission.ACCESS_COARSE_LOCATION;
+    private static final int LOCATION_PERMISSION_REQUEST_CODE = 1234;
+    private static final float DEFAULT_ZOOM = 15f;
+    private static final LatLngBounds LAT_LNG_BOUNDS = new LatLngBounds(
+            new LatLng(-40, -168), new LatLng(71, 136));
 
+    //widgets
+    private AutoCompleteTextView mSearchText;
+    private ImageView mGps;
+
+    //vars
+    private Boolean mLocationPermissionsGranted = false;
+    private GoogleMap mMap;
+    private FusedLocationProviderClient mFusedLocationProviderClient;
+    // private DatabaseReference mBd;
+    //private ChildEventListener mCh;
+
+    private List<PatientLocation> patientLocations = new ArrayList<>();
+    // Marker marker;
+    //private PlaceAutocompleteAdapter mPlaceAutocompleteAdapter;
+    // private GoogleApiClient mGoogleApiClient;
+
+    //private DocumentReference docRef = FirebaseFirestore.getInstance().collection("Patients")
+           // .document("fhOP3B1AThLXF7dDzAZy");
+
+    @Override
+    protected void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_map);
+        mSearchText = (AutoCompleteTextView) findViewById(R.id.input_search);
+        mGps = (ImageView) findViewById(R.id.ic_gps);
+        // mBd= FirebaseDatabase.getInstance().getReference().child("Patients");
+        // mBd.push().setValue(marker);
+
+        getLocationPermission();
+        Places.initialize(getApplicationContext(),"AIzaSyCo2VRdwGMQmSeVKzSfvGrgCN0Vuy4i7u0");
+        mSearchText.setFocusable(false);
+        mSearchText.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                List<Place.Field> fieldList= Arrays.asList(Place.Field.ADDRESS, Place.Field.LAT_LNG, Place.Field.NAME);
+                Intent intent = new Autocomplete.IntentBuilder(AutocompleteActivityMode.OVERLAY, fieldList).build(MapActivity.this);
+                startActivityForResult(intent,100);
+            }
+        });
+
+        //getLocationPermission();
+    }
+
+    //Implement methods
 
     @Override
     public void onMapReady(GoogleMap googleMap) {
@@ -86,10 +139,6 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
             mMap.setMyLocationEnabled(true);
             mMap.getUiSettings().setMyLocationButtonEnabled(false);
             init();
-           // LatLng center = new LatLng(36.068901, 4.747727);
-            //mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(center,20));
-            //mMap.setMapType(GoogleMap.MAP_TYPE_HYBRID);
-           // mMap.addMarker(new MarkerOptions().position(new LatLng(36.068901, 4.747727)).title("Patient 1"));
         }
         googleMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
             @Override
@@ -98,25 +147,37 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
             }
         });
 
-//        mBd.addListenerForSingleValueEvent(new ValueEventListener() {
-//            @Override
-//            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-//                for(DataSnapshot s: dataSnapshot.getChildren()){
-//                    PatientLocation patientLocation= s.getValue(PatientLocation.class);
-//                    LatLng location = new LatLng(patientLocation.getLatitude(),patientLocation.getLongitude());
-//                    mMap.addMarker(new MarkerOptions().position(location).title(patientLocation.états)
-//                            .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_BLUE)));
-//
-//                }
-//            }
-//
-//            @Override
-//            public void onCancelled(@NonNull DatabaseError databaseError) {
-//
-//            }
-//        });
-
         //  Used For Firestore
+
+
+        FirebaseFirestore.getInstance().collection("Patients")
+                //.whereEqualTo("capital", true)
+                .get()
+                .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                        if (task.isSuccessful()) {
+                            Log.d(TAG, "++++++ Data has been fetched ========");
+                            for (QueryDocumentSnapshot document : task.getResult()) {
+
+
+                                double latitude = document.getDouble("latitude").doubleValue();
+                                double longitude = document.getDouble("longitude").doubleValue();
+                                LatLng location = new LatLng(latitude,longitude);
+                                mMap.addMarker(new MarkerOptions().position(location).title(document.getString("Etats_Patient"))
+                                        .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_BLUE)));
+
+
+                                Log.d(TAG, "++++++ THIS IS THE DATA ++++++++");
+                                Log.d(TAG, document.getId() + " => " + document.getData());
+                            }
+                        } else {
+                            Log.d(TAG, "Error getting documents: ", task.getException());
+                        }
+                    }
+                });
+
+        /*
         docRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
             @Override
             public void onComplete(@NonNull Task<DocumentSnapshot> task) {
@@ -126,7 +187,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
                        double latitude = document.getDouble("latitude").doubleValue();
                        double longitude = document.getDouble("longitude").doubleValue();
                         LatLng location = new LatLng(latitude,longitude);
-                        mMap.addMarker(new MarkerOptions().position(location).title("Anything")
+                        mMap.addMarker(new MarkerOptions().position(location).title("Malade")
                                 .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_BLUE)));
                     } else {
                        Log.d(TAG,"No such Document");
@@ -136,63 +197,13 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
                 }
             }
         });
-
+  */
     }
+
     @Override
     public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
 
     }
-    //Static vars
-    private static final String TAG = "MapActivity";
-    private static final String FINE_LOCATION = Manifest.permission.ACCESS_FINE_LOCATION;
-    private static final String COURSE_LOCATION = Manifest.permission.ACCESS_COARSE_LOCATION;
-    private static final int LOCATION_PERMISSION_REQUEST_CODE = 1234;
-    private static final float DEFAULT_ZOOM = 15f;
-    private static final LatLngBounds LAT_LNG_BOUNDS = new LatLngBounds(
-            new LatLng(-40, -168), new LatLng(71, 136));
-
-    //widgets
-    private AutoCompleteTextView mSearchText;
-    private ImageView mGps;
-
-    //vars
-    private Boolean mLocationPermissionsGranted = false;
-    private GoogleMap mMap;
-    private FusedLocationProviderClient mFusedLocationProviderClient;
-    private DatabaseReference mBd;
-    private ChildEventListener mCh;
-
-   // Marker marker;
-    //private PlaceAutocompleteAdapter mPlaceAutocompleteAdapter;
-   // private GoogleApiClient mGoogleApiClient;
-
-    private DocumentReference docRef = FirebaseFirestore.getInstance().collection("Patients")
-            .document("fhOP3B1AThLXF7dDzAZy");
-
-    @Override
-    protected void onCreate(@Nullable Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_map);
-        mSearchText = (AutoCompleteTextView) findViewById(R.id.input_search);
-        mGps = (ImageView) findViewById(R.id.ic_gps);
-       // mBd= FirebaseDatabase.getInstance().getReference().child("Patients");
-       // mBd.push().setValue(marker);
-        ChildEventListener mCh;
-        getLocationPermission();
-        Places.initialize(getApplicationContext(),"AIzaSyCo2VRdwGMQmSeVKzSfvGrgCN0Vuy4i7u0");
-        mSearchText.setFocusable(false);
-        mSearchText.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                List<Place.Field> fieldList= Arrays.asList(Place.Field.ADDRESS, Place.Field.LAT_LNG, Place.Field.NAME);
-                Intent intent = new Autocomplete.IntentBuilder(AutocompleteActivityMode.OVERLAY, fieldList).build(MapActivity.this);
-                startActivityForResult(intent,100);
-            }
-        });
-
-        getLocationPermission();
-    }
-
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
@@ -241,7 +252,6 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
             getDeviceLocation();
             }
         });
-
         hideSoftKeyboard();
     }
     private void getLocationPermission(){
@@ -333,7 +343,6 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
 
         hideSoftKeyboard();
     }
-
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         Log.d(TAG, "onRequestPermissionsResult: called.");
